@@ -150,7 +150,7 @@ model Tracker {
 
 model TrackerRule {
   id          String   @id @default(cuid())
-  trackerId   String
+  trackerId   String   @unique
   variantSize String?
   variantColor String?
   priceCapCents Int?
@@ -224,6 +224,8 @@ model AlertEvent {
   whySent      String?
   whyNotSent   String?
   dedupeKey    String
+  falsePositive Boolean     @default(false)
+  falsePositiveNote String?
   createdAt    DateTime    @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

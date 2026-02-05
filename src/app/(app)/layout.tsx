@@ -1,14 +1,17 @@
+import { AppSidebar } from '@/components/layout/AppSidebar';
+import { AppTopbar } from '@/components/layout/AppTopbar';
 import { requireUser } from '@/lib/auth/requireUser';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const user = await requireUser();
+  await requireUser();
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b bg-white px-6 py-4">
-        <p className="text-sm text-slate-600">Signed in as {user.email ?? 'unknown user'}</p>
-      </header>
-      <main className="p-6">{children}</main>
+    <div className="mx-auto grid min-h-screen max-w-7xl gap-4 px-4 py-6 lg:grid-cols-[240px_1fr]">
+      <AppSidebar />
+      <div>
+        <AppTopbar />
+        {children}
+      </div>
     </div>
   );
 }

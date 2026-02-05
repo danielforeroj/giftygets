@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CheckRunStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
+enum AlertStatus {
+  SENT
+  NOT_SENT
+}
+
+model User {
+  id                String          @id @default(cuid())
+  name              String?
+  email             String?         @unique
+  emailVerified     DateTime?
+  image             String?
+  notificationEmail String?
+  timezone          String?
+  accounts          Account[]
+  sessions          Session[]
+  trackers          Tracker[]
+  checkRuns         CheckRun[]
+  alertEvents       AlertEvent[]
+  intentProfiles    IntentProfile[]
+  agentTraces       AgentTrace[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Tracker {
+  id          String      @id @default(cuid())
+  userId      String
+  name        String
+  url         String?
+  lastCheckAt DateTime?
+  nextCheckAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  checkRuns   CheckRun[]
+  alertEvents AlertEvent[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CheckRun {
+  id          String         @id @default(cuid())
+  userId      String
+  trackerId   String
+  status      CheckRunStatus @default(PENDING)
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  error       String?
+  metadata    Json?
+  createdAt   DateTime       @default(now())
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tracker    Tracker     @relation(fields: [trackerId], references: [id], onDelete: Cascade)
+  agentTraces AgentTrace[]
+  alertEvents AlertEvent[]
+}
+
+model AlertEvent {
+  id         String      @id @default(cuid())
+  userId     String
+  trackerId  String
+  checkRunId String?
+  status     AlertStatus
+  reason     String
+  dedupeKey  String?
+  createdAt  DateTime    @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tracker  Tracker  @relation(fields: [trackerId], references: [id], onDelete: Cascade)
+  checkRun CheckRun? @relation(fields: [checkRunId], references: [id], onDelete: SetNull)
+
+  @@index([trackerId, createdAt])
+}
+
+model IntentProfile {
+  id                 String   @id @default(cuid())
+  userId             String
+  intentTags         String[] @default([])
+  preferredPriceMin  Int?
+  preferredPriceMax  Int?
+  confidence         Float    @default(0)
+  updatedAt          DateTime @updatedAt
+  createdAt          DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AgentTrace {
+  id         String   @id @default(cuid())
+  userId     String
+  checkRunId String
+  summary    String?
+  trace      Json?
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkRun CheckRun @relation(fields: [checkRunId], references: [id], onDelete: Cascade)
+}

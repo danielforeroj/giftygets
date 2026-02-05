@@ -8,14 +8,22 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
+    "eval": "vitest run src/eval/scenarios",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "worker": "node ./src/server/jobs/worker.ts"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.7.2",
     "@prisma/client": "^5.20.0",
     "next": "14.2.5",
+    "next-auth": "^4.24.7",
+    "pg-boss": "^10.1.6",
     "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react-dom": "18.3.1",
+    "resend": "^4.0.0",
+    "stripe": "^16.8.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.8",

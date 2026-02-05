@@ -11,7 +11,10 @@
     "eval": "vitest run src/eval/scenarios",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "worker": "node ./src/server/jobs/worker.ts"
+    "worker": "tsx src/server/jobs/worker.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "make-admin": "tsx scripts/make-admin.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.2",
@@ -23,7 +26,8 @@
     "react-dom": "18.3.1",
     "resend": "^4.0.0",
     "stripe": "^16.8.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "openai": "^4.76.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.8",
@@ -38,6 +42,7 @@
     "prisma": "^5.20.0",
     "tailwindcss": "^3.4.7",
     "typescript": "^5.5.3",
-    "vitest": "^2.0.3"
+    "vitest": "^2.0.3",
+    "tsx": "^4.19.1"
   }
 }

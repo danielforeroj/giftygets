@@ -2,9 +2,17 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { Table, TableWrap } from '@/components/ui/Table';
-import { mockTrackers } from '@/lib/mock/mockData';
+import { requireUser } from '@/lib/auth/requireUser';
+import { listTrackers } from '@/server/trackers/trackerService';
 
-export default function TrackersPage() {
+function formatDate(value: Date | null) {
+  return value ? value.toLocaleString() : '—';
+}
+
+export default async function TrackersPage() {
+  const user = await requireUser();
+  const trackers = await listTrackers(user.id);
+
   return (
     <div className="space-y-5">
       <div className="flex items-end justify-between gap-4">
@@ -19,16 +27,20 @@ export default function TrackersPage() {
             <tr>
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Store</th>
-              <th className="px-4 py-3">Price</th>
-              <th className="px-4 py-3">Action</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Last check</th>
+              <th className="px-4 py-3">Next</th>
+              <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {mockTrackers.map((tracker) => (
+            {trackers.map((tracker) => (
               <tr key={tracker.id} className="border-t border-glassBorder/40">
                 <td className="px-4 py-3">{tracker.name}</td>
-                <td className="px-4 py-3">{tracker.store}</td>
-                <td className="px-4 py-3">{tracker.price}</td>
+                <td className="px-4 py-3">{tracker.normalizedDomain}</td>
+                <td className="px-4 py-3">{tracker.status}</td>
+                <td className="px-4 py-3">{formatDate(tracker.lastRunAt)}</td>
+                <td className="px-4 py-3">{formatDate(tracker.nextRunAt)}</td>
                 <td className="px-4 py-3">
                   <Link className="text-cyan" href={`/app/trackers/${tracker.id}`}>
                     Open
@@ -36,6 +48,13 @@ export default function TrackersPage() {
                 </td>
               </tr>
             ))}
+            {trackers.length === 0 ? (
+              <tr>
+                <td className="px-4 py-6 text-sm text-ink/70" colSpan={6}>
+                  No trackers yet. Create your first tracker.
+                </td>
+              </tr>
+            ) : null}
           </tbody>
         </Table>
       </TableWrap>

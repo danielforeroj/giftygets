@@ -3,15 +3,15 @@
 @tailwind utilities;
 
 :root {
-  --violet: #7b61ff;
-  --pink: #ff4d6d;
-  --blue: #1f6fff;
-  --cyan: #00c2ff;
-  --orange: #ff9f1c;
-  --ink: #f6f7ff;
-  --paper: #130f2d;
-  --glass: rgba(255, 255, 255, 0.12);
-  --glassBorder: rgba(255, 255, 255, 0.28);
+  --violet: 123 97 255;
+  --pink: 255 77 109;
+  --blue: 31 111 255;
+  --cyan: 0 194 255;
+  --orange: 255 159 28;
+  --ink: 246 247 255;
+  --paper: 19 15 45;
+  --glass: 255 255 255;
+  --glassBorder: 255 255 255;
 }
 
 * {
@@ -21,12 +21,12 @@
 body {
   margin: 0;
   min-height: 100vh;
-  color: var(--ink);
+  color: rgb(var(--ink));
   background:
-    radial-gradient(circle at 15% 15%, rgba(31, 111, 255, 0.35), transparent 32%),
-    radial-gradient(circle at 82% 8%, rgba(0, 194, 255, 0.22), transparent 28%),
-    radial-gradient(circle at 50% 120%, rgba(255, 77, 109, 0.18), transparent 42%),
-    var(--violet);
+    radial-gradient(circle at 15% 15%, rgb(var(--blue) / 0.35), transparent 32%),
+    radial-gradient(circle at 82% 8%, rgb(var(--cyan) / 0.22), transparent 28%),
+    radial-gradient(circle at 50% 120%, rgb(var(--pink) / 0.18), transparent 42%),
+    rgb(var(--violet));
   background-attachment: fixed;
 }
 

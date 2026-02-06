@@ -3,6 +3,8 @@ import { Card } from '@/components/ui/Card';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { getAdapterHealthRows, type AdapterHealthRow } from '@/server/queries/admin';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminAdaptersPage() {
   const rows = await getAdapterHealthRows();
   return (

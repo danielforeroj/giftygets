@@ -17,7 +17,7 @@ async function enqueueDueTrackers(boss: ReturnType<typeof createBoss>) {
     const activeSub = tracker.user.subscriptions.some((s) => s.status === 'ACTIVE');
     if (!activeSub) continue;
 
-    const nextRunAt = new Date(Date.now() + scheduleClamp(3600) * 1000);
+    const nextRunAt = new Date(Date.now() + scheduleClamp(3600, 0) * 1000);
     await prisma.tracker.update({ where: { id: tracker.id }, data: { nextRunAt, lastRunAt: new Date() } });
 
     await boss.send(JOB_TYPES.CHECK_TRACKER, {
@@ -37,9 +37,11 @@ async function main() {
     enqueueDueTrackers(boss).catch((error) => console.error('scheduler loop failed', error));
   }, 60_000);
 
-  await boss.work(JOB_TYPES.CHECK_TRACKER, { teamSize: Number(process.env.JOBS_CONCURRENCY ?? 10) }, async (job) => {
-    const payload = job.data as { trackerId: string; userId: string; url: string; rules: any };
-    await runCheck(payload);
+  await boss.work(JOB_TYPES.CHECK_TRACKER, { batchSize: Number(process.env.JOBS_CONCURRENCY ?? 10) }, async (jobs) => {
+    for (const job of jobs) {
+      const payload = job.data as { trackerId: string; userId: string; url: string; rules: any };
+      await runCheck(payload);
+    }
   });
 }
 

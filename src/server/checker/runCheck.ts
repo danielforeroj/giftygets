@@ -17,17 +17,24 @@ export async function runCheck(input: { trackerId: string; userId: string; url: 
     const variant = adapter.checkVariantAvailability(product, input.rules);
     const confidence = computeConfidence({ verified: verify.buyable, matchedRules: variant.ok, freshnessMinutes: 5 });
 
+    const user = await prisma.user.findUnique({ where: { id: input.userId }, select: { notificationEmail: true, email: true } });
+    const notificationEmail = user?.notificationEmail ?? user?.email ?? 'alerts@example.com';
+
+    const variantId = verify.verifiedFields.variantId ?? 'any';
+    const priceCents = verify.verifiedFields.price ?? product.priceCents;
+    const dedupeKey = `${input.url}:${variantId}:${priceCents}`;
+
     const alert = await runAlertEngine({
       userId: input.userId,
       trackerId: input.trackerId,
-      email: product?.merchant ?? 'alerts@example.com',
-      dedupeKey: `${product.id ?? product.url ?? input.url}:${product.price ?? 'na'}`,
+      email: notificationEmail,
+      dedupeKey,
       buyable: verify.buyable,
       variantOk: variant.ok,
       confidence,
       title: product.title ?? 'Product update',
       reasons: verify.reasons ?? [],
-      verifiedPrice: product.price,
+      verifiedPrice: priceCents,
       verifiedAvailability: verify.buyable
     });
 

@@ -6,22 +6,22 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        violet: 'var(--violet)',
-        pink: 'var(--pink)',
-        blue: 'var(--blue)',
-        cyan: 'var(--cyan)',
-        orange: 'var(--orange)',
-        ink: 'var(--ink)',
-        paper: 'var(--paper)',
-        glass: 'var(--glass)',
-        glassBorder: 'var(--glassBorder)'
+        violet: 'rgb(var(--violet) / <alpha-value>)',
+        pink: 'rgb(var(--pink) / <alpha-value>)',
+        blue: 'rgb(var(--blue) / <alpha-value>)',
+        cyan: 'rgb(var(--cyan) / <alpha-value>)',
+        orange: 'rgb(var(--orange) / <alpha-value>)',
+        ink: 'rgb(var(--ink) / <alpha-value>)',
+        paper: 'rgb(var(--paper) / <alpha-value>)',
+        glass: 'rgb(var(--glass) / <alpha-value>)',
+        glassBorder: 'rgb(var(--glassBorder) / <alpha-value>)'
       },
       borderRadius: {
         '2xl': '1rem',
         '3xl': '1.5rem'
       },
       boxShadow: {
-        glow: '0 0 40px rgba(255, 77, 109, 0.35)'
+        glow: '0 0 40px rgb(var(--pink) / 0.35)'
       }
     }
   },
@@ -30,16 +30,15 @@ const config: Config = {
       addUtilities({
         '.bg-canvas': {
           background:
-            'radial-gradient(circle at 20% 20%, rgba(31, 111, 255, 0.35), transparent 45%), radial-gradient(circle at 80% 0%, rgba(0, 194, 255, 0.25), transparent 40%), linear-gradient(135deg, var(--violet), #5a46c7 70%)'
+            'radial-gradient(circle at 20% 20%, rgb(var(--blue) / 0.35), transparent 45%), radial-gradient(circle at 80% 0%, rgb(var(--cyan) / 0.25), transparent 40%), linear-gradient(135deg, rgb(var(--violet)), rgb(90 70 199) 70%)'
         },
         '.bg-noise': {
-          backgroundImage:
-            'radial-gradient(rgba(255,255,255,0.08) 0.5px, transparent 0.5px)',
+          backgroundImage: 'radial-gradient(rgba(255,255,255,0.08) 0.5px, transparent 0.5px)',
           backgroundSize: '4px 4px'
         },
         '.card-glass': {
-          backgroundColor: 'var(--glass)',
-          border: '1px solid var(--glassBorder)',
+          backgroundColor: 'rgb(var(--glass) / 0.12)',
+          border: '1px solid rgb(var(--glassBorder) / 0.28)',
           backdropFilter: 'blur(14px)'
         }
       });

@@ -1,50 +1,35 @@
-# AI EA Alerts Agent (Gifty Gets MVP)
+# Gifty Gets MVP
 
-MVP combines a playful frontend with deterministic alert guarantees:
-- no alert without deterministic verification
-- schema-validated agent plans with fallback path
-- allowlist + safeFetch gate
-- observable traces for plans/tool execution
+## Local setup
 
-## Setup
+1. Install deps:
+   - `corepack enable && pnpm install`
+2. Run Prisma client generation:
+   - `pnpm prisma:generate`
+3. Run database migrations in development:
+   - `pnpm prisma:migrate`
+4. Run web app:
+   - `pnpm dev`
+5. Run worker + scheduler loop:
+   - `pnpm worker`
 
-1. Copy env file:
-```bash
-cp .env.local.example .env.local
-```
-2. Install dependencies:
-```bash
-pnpm install
-```
-3. Run migrations:
-```bash
-pnpm prisma:migrate
-```
-4. Start app:
-```bash
-pnpm dev
-```
-5. Start worker (separate terminal):
-```bash
-pnpm worker
-```
+## Production deploy (Render)
 
-## Commands
+Use `render.yaml` to create:
+- web service (`pnpm start`)
+- worker service (`pnpm worker`)
 
-```bash
-pnpm lint
-pnpm test
-pnpm eval
-```
+`render.yaml` already enables Corepack and pins pnpm (`pnpm@9.15.3`) for reliable builds.
 
-## Main routes
-- Marketing: `/`, `/pricing`, `/privacy`, `/terms`
-- App: `/app/dashboard`, `/app/trackers`, `/app/settings`, `/app/billing`
-- Admin: `/admin/checks`, `/admin/checks/[id]`, `/admin/adapters`
+Set `DATABASE_URL` for both the web service and the worker service.
 
-## Guarantees implemented
-- Deterministic alert gate (`src/server/verifiers/alertGate.ts`)
-- Plan schema + fallback (`src/server/agent/planSchema.ts`, `src/server/agent/validatePlan.ts`)
-- Allowlist and safe fetch (`src/server/policy/domainAllowlist.ts`, `src/server/http/safeFetch.ts`)
-- Trace logging (`src/server/agent/trace.ts`, `src/server/logging/logger.ts`)
-- Eval scenarios (`src/eval/scenarios/*`)
+## Admin promotion
+
+Promote a user to admin:
+- `pnpm make-admin you@example.com`
+
+## Quality checks
+
+- Lint: `pnpm lint`
+- Unit tests: `pnpm test`
+- Build: `pnpm build`

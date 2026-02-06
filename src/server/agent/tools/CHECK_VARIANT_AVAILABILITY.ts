@@ -1,12 +1,14 @@
 import { z } from 'zod';
 import { checkVariantAvailability } from '@/server/verifiers/checkVariantAvailability';
 
-const schema = z.object({
-  url: z.string().optional(),
-  trackerUrl: z.string().optional(),
-  product: z.any(),
-  rules: z.any()
-});
+const schema = z
+  .object({
+    url: z.string().optional(),
+    trackerUrl: z.string().optional(),
+    product: z.any(),
+    rules: z.any()
+  })
+  .passthrough();
 
 export function CHECK_VARIANT_AVAILABILITY(input: unknown) {
   const parsed = schema.parse(input);

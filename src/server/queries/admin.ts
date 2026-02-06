@@ -1,20 +1,17 @@
 import { prisma } from '@/server/db/prisma';
 
-export async function getRecentCheckRuns() {
-  return prisma.checkRun.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: 50,
-    include: { tracker: { select: { name: true } }, traces: true }
-  });
-}
+export type AdapterHealthRow = {
+  id: string;
+  domain: string;
+  lastSuccessAt: Date | null;
+  lastFailureAt: Date | null;
+  failureCount: number;
+  backoffUntil: Date | null;
+  updatedAt: Date;
+};
 
-export async function getCheckTrace(checkRunId: string) {
-  return prisma.agentTrace.findFirst({
-    where: { checkRunId },
-    include: { toolCalls: { orderBy: { createdAt: 'asc' } }, toolResults: { orderBy: { createdAt: 'asc' } }, checkRun: true }
-  });
-}
-
-export async function getAdapterHealthRows() {
-  return prisma.adapterHealth.findMany({ orderBy: { updatedAt: 'desc' } });
+export async function getAdapterHealthRows(): Promise<AdapterHealthRow[]> {
+  const rows = await prisma.adapterHealth.findMany({ orderBy: { updatedAt: 'desc' } });
+  // Prisma returns Dates already; this cast is safe and prevents any[] inference in strict builds.
+  return rows as AdapterHealthRow[];
 }

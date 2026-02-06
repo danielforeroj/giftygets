@@ -4,6 +4,13 @@ import type { AIProvider } from '@/server/ai/provider';
 
 const client = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
 
+function getResponseText(res: any): string {
+  if (typeof res?.output_text === 'string') return res.output_text;
+  const maybe = res?.output?.[0]?.content?.[0]?.text;
+  if (typeof maybe === 'string') return maybe;
+  return '';
+}
+
 export const openAIProvider: AIProvider = {
   async structuredJson<T>(prompt: string, schema: z.ZodType<T>) {
     if (!client) {
@@ -23,7 +30,10 @@ export const openAIProvider: AIProvider = {
       model: process.env.AI_MODEL ?? 'gpt-4.1-mini',
       input: prompt
     });
-    return schema.parse(JSON.parse(res.output_text));
+
+    const text = getResponseText(res);
+    if (!text) throw new Error('AI provider returned empty output');
+    return schema.parse(JSON.parse(text));
   },
   async embed(text: string) {
     if (!client) return text.split('').slice(0, 8).map((char) => char.charCodeAt(0) / 255);

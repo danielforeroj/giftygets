@@ -27,9 +27,10 @@ export const authOptions: NextAuthOptions = {
   pages: { signIn: '/auth/signin' },
   callbacks: {
     async session({ session, user }) {
+      const u = user as unknown as { id: string; role?: 'USER' | 'ADMIN' };
       if (session.user) {
-        (session.user as any).id = user.id;
-        (session.user as any).role = user.role;
+        (session.user as any).id = u.id;
+        (session.user as any).role = u.role ?? 'USER';
       }
       return session;
     }

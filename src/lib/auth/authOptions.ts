@@ -4,7 +4,7 @@ import EmailProvider from 'next-auth/providers/email';
 import { Resend } from 'resend';
 import { prisma } from '@/server/db/prisma';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -13,7 +13,7 @@ export const authOptions: NextAuthOptions = {
       from: process.env.EMAIL_FROM ?? 'alerts@yourdomain.com',
       async sendVerificationRequest({ identifier, url, provider }) {
         if (process.env.NODE_ENV === 'test') return;
-        if (!process.env.RESEND_API_KEY) throw new Error('RESEND_API_KEY is required for magic links');
+        if (!resend) throw new Error('RESEND_API_KEY is required for magic links');
 
         await resend.emails.send({
           from: provider.from,

@@ -1,37 +1,76 @@
 import { normalizedDomain } from '@/lib/url/normalize';
 import { trackerSchema } from '@/lib/validation/tracker';
+import { prisma } from '@/server/db/prisma';
 import { isDomainAllowed } from '@/server/policy/domainAllowlist';
 
-const inMemory: Record<string, any> = {};
-
-export function listTrackers(userId: string) {
-  return Object.values(inMemory).filter((tracker: any) => tracker.userId === userId);
+export async function listTrackers(userId: string) {
+  return prisma.tracker.findMany({ where: { userId }, include: { rules: true }, orderBy: { createdAt: 'desc' } });
 }
 
-export function getTracker(id: string) {
-  return inMemory[id] ?? null;
+export async function getTracker(id: string, userId: string) {
+  return prisma.tracker.findFirst({ where: { id, userId }, include: { rules: true } });
 }
 
-export function createTracker(userId: string, payload: unknown) {
+export async function createTracker(userId: string, payload: unknown) {
   const input = trackerSchema.parse(payload);
   if (!isDomainAllowed(input.url)) throw new Error('Domain not allowed.');
 
-  const id = `trk_${Math.random().toString(36).slice(2, 8)}`;
-  inMemory[id] = { id, userId, ...input, normalizedDomain: normalizedDomain(input.url) };
-  return inMemory[id];
+  return prisma.tracker.create({
+    data: {
+      userId,
+      name: input.name,
+      url: input.url,
+      normalizedDomain: normalizedDomain(input.url),
+      frequencyTier: input.frequencyTier,
+      nextRunAt: new Date(),
+      lastRunAt: null,
+      rules: {
+        create: {
+          variantSize: input.variantSize,
+          variantColor: input.variantColor,
+          priceCapCents: input.priceCapCents
+        }
+      }
+    },
+    include: { rules: true }
+  });
 }
 
-export function updateTracker(id: string, userId: string, payload: unknown) {
-  const existing = inMemory[id];
-  if (!existing || existing.userId !== userId) throw new Error('Not found');
+export async function updateTracker(id: string, userId: string, payload: unknown) {
   const input = trackerSchema.partial().parse(payload);
-  inMemory[id] = { ...existing, ...input };
-  return inMemory[id];
+  const existing = await prisma.tracker.findFirst({ where: { id, userId } });
+  if (!existing) throw new Error('Not found');
+
+  const data: Record<string, unknown> = { ...input };
+  if (input.url) {
+    if (!isDomainAllowed(input.url)) throw new Error('Domain not allowed.');
+    data.normalizedDomain = normalizedDomain(input.url);
+  }
+
+  const tracker = await prisma.tracker.update({ where: { id }, data });
+
+  if (input.variantSize !== undefined || input.variantColor !== undefined || input.priceCapCents !== undefined) {
+    await prisma.trackerRule.upsert({
+      where: { trackerId: id },
+      update: {
+        variantSize: input.variantSize,
+        variantColor: input.variantColor,
+        priceCapCents: input.priceCapCents
+      },
+      create: {
+        trackerId: id,
+        variantSize: input.variantSize,
+        variantColor: input.variantColor,
+        priceCapCents: input.priceCapCents
+      }
+    });
+  }
+
+  return { ...tracker, rules: await prisma.trackerRule.findMany({ where: { trackerId: id } }) };
 }
 
-export function deleteTracker(id: string, userId: string) {
-  const existing = inMemory[id];
-  if (!existing || existing.userId !== userId) throw new Error('Not found');
-  delete inMemory[id];
+export async function deleteTracker(id: string, userId: string) {
+  const deleted = await prisma.tracker.deleteMany({ where: { id, userId } });
+  if (deleted.count === 0) throw new Error('Not found');
   return { ok: true };
 }

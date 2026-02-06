@@ -1,0 +1,61 @@
+services:
+  - type: web
+    name: giftygets-web
+    env: node
+    buildCommand: corepack enable && corepack prepare pnpm@9.15.3 --activate && pnpm install && pnpm prisma:generate && pnpm prisma:migrate:deploy && pnpm build
+    startCommand: pnpm start
+    envVars:
+      - key: DATABASE_URL
+      - key: NEXTAUTH_SECRET
+      - key: NEXTAUTH_URL
+      - key: RESEND_API_KEY
+      - key: EMAIL_FROM
+      - key: APP_URL
+      - key: STRIPE_SECRET_KEY
+      - key: STRIPE_WEBHOOK_SECRET
+      - key: STRIPE_PRICE_BASIC
+      - key: STRIPE_PRICE_PRO
+      - key: ALLOWED_DOMAINS
+      - key: FETCH_TIMEOUT_MS
+      - key: FETCH_MAX_BYTES
+      - key: JOBS_CONCURRENCY
+      - key: JOBS_MAX_RETRIES
+      - key: CONFIDENCE_MIN
+      - key: ALERT_DEDUPE_MINUTES
+      - key: ALERT_RATE_LIMIT_PER_DAY
+      - key: MIN_CHECK_SECONDS
+      - key: MAX_CHECK_SECONDS
+      - key: AI_PROVIDER
+      - key: OPENAI_API_KEY
+      - key: AI_MODEL
+      - key: AI_EMBEDDINGS_MODEL
+  - type: worker
+    name: giftygets-worker
+    env: node
+    buildCommand: corepack enable && corepack prepare pnpm@9.15.3 --activate && pnpm install && pnpm prisma:generate
+    startCommand: pnpm worker
+    envVars:
+      - key: DATABASE_URL
+      - key: NEXTAUTH_SECRET
+      - key: NEXTAUTH_URL
+      - key: RESEND_API_KEY
+      - key: EMAIL_FROM
+      - key: APP_URL
+      - key: STRIPE_SECRET_KEY
+      - key: STRIPE_WEBHOOK_SECRET
+      - key: STRIPE_PRICE_BASIC
+      - key: STRIPE_PRICE_PRO
+      - key: ALLOWED_DOMAINS
+      - key: FETCH_TIMEOUT_MS
+      - key: FETCH_MAX_BYTES
+      - key: JOBS_CONCURRENCY
+      - key: JOBS_MAX_RETRIES
+      - key: CONFIDENCE_MIN
+      - key: ALERT_DEDUPE_MINUTES
+      - key: ALERT_RATE_LIMIT_PER_DAY
+      - key: MIN_CHECK_SECONDS
+      - key: MAX_CHECK_SECONDS
+      - key: AI_PROVIDER
+      - key: OPENAI_API_KEY
+      - key: AI_MODEL
+      - key: AI_EMBEDDINGS_MODEL

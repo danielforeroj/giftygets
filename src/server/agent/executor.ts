@@ -1,4 +1,5 @@
 import { prisma } from '@/server/db/prisma';
+import { toPrismaJson } from '@/server/json/toPrismaJson';
 import { toolRegistry } from '@/server/agent/tools';
 import type { AgentPlan } from '@/server/agent/planSchema';
 
@@ -9,7 +10,7 @@ export async function executePlan(plan: AgentPlan, context: Record<string, unkno
     (context.userId && context.checkRunId
       ? (
           await prisma.agentTrace.create({
-            data: { userId: context.userId, checkRunId: context.checkRunId, planJson: plan }
+            data: { userId: context.userId, checkRunId: context.checkRunId, planJson: toPrismaJson(plan) }
           })
         ).id
       : undefined);
@@ -19,10 +20,10 @@ export async function executePlan(plan: AgentPlan, context: Record<string, unkno
       const tool = (toolRegistry as Record<string, any>)[step.tool];
       if (!tool) throw new Error(`Unknown tool: ${step.tool}`);
       const args = { ...context, ...step.args };
-      traceId && (await prisma.toolCall.create({ data: { agentTraceId: traceId, stepId: step.id, tool: step.tool, args } }));
+      traceId && (await prisma.toolCall.create({ data: { agentTraceId: traceId, stepId: step.id, tool: step.tool, args: toPrismaJson(args) } }));
       const result = await tool(args);
       outputs.set(step.id, result);
-      traceId && (await prisma.toolResult.create({ data: { agentTraceId: traceId, stepId: step.id, ok: true, data: result } }));
+      traceId && (await prisma.toolResult.create({ data: { agentTraceId: traceId, stepId: step.id, ok: true, data: toPrismaJson(result) } }));
     } catch (error) {
       traceId &&
         (await prisma.toolResult.create({

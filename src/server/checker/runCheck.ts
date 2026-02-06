@@ -1,4 +1,5 @@
 import { prisma } from '@/server/db/prisma';
+import { toPrismaJson } from '@/server/json/toPrismaJson';
 import { getAdapterForUrl } from '@/server/adapters/registry';
 import { EXTRACT_PRODUCT_JSON } from '@/server/agent/tools/EXTRACT_PRODUCT_JSON';
 import { computeConfidence } from '@/server/verifiers/computeConfidence';
@@ -30,7 +31,7 @@ export async function runCheck(input: { trackerId: string; userId: string; url: 
       verifiedAvailability: verify.buyable
     });
 
-    await prisma.checkRun.update({ where: { id: checkRun.id }, data: { status: 'SUCCEEDED', finishedAt: new Date(), metadata: { alert } } });
+    await prisma.checkRun.update({ where: { id: checkRun.id }, data: { status: 'SUCCEEDED', finishedAt: new Date(), metadata: toPrismaJson({ alert }) } });
 
     return { product, verify, variant, confidence, alert };
   } catch (error) {

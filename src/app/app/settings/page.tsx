@@ -1,22 +1,22 @@
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { Select } from '@/components/ui/Select';
+import { requireUser } from '@/lib/auth/requireUser';
+import { prisma } from '@/server/db/prisma';
+import { SettingsForm } from './SettingsForm';
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const user = await requireUser();
+  const current = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { timezone: true, notificationEmail: true, email: true }
+  });
+
   return (
     <div className="space-y-6">
       <SectionHeader title="Settings" description="Profile and notification preferences." />
-      <Card className="space-y-4">
-        <Input defaultValue="dev@example.com" />
-        <Select defaultValue="America/New_York">
-          <option>America/New_York</option>
-          <option>America/Los_Angeles</option>
-          <option>UTC</option>
-        </Select>
-        <Button>Save settings</Button>
-      </Card>
+      <SettingsForm
+        initialTimezone={current?.timezone ?? 'UTC'}
+        initialNotificationEmail={current?.notificationEmail ?? current?.email ?? ''}
+      />
     </div>
   );
 }

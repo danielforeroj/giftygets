@@ -6,7 +6,10 @@ import { scheduleClamp } from '@/server/checker/scheduleClamp';
 
 async function enqueueDueTrackers(boss: ReturnType<typeof createBoss>) {
   const due = await prisma.tracker.findMany({
-    where: { status: 'ACTIVE', nextRunAt: { lte: new Date() } },
+    where: {
+      status: 'ACTIVE',
+      OR: [{ nextRunAt: null }, { nextRunAt: { lte: new Date() } }]
+    },
     include: { user: { include: { subscriptions: true } }, rules: true }
   });
 

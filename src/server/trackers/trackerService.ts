@@ -22,6 +22,8 @@ export async function createTracker(userId: string, payload: unknown) {
       url: input.url,
       normalizedDomain: normalizedDomain(input.url),
       frequencyTier: input.frequencyTier,
+      nextRunAt: new Date(),
+      lastRunAt: null,
       rules: {
         create: {
           variantSize: input.variantSize,

@@ -2,7 +2,7 @@ services:
   - type: web
     name: giftygets-web
     env: node
-    buildCommand: pnpm install && pnpm prisma:generate && pnpm prisma:migrate:deploy && pnpm build
+    buildCommand: corepack enable && corepack prepare pnpm@9.15.3 --activate && pnpm install && pnpm prisma:generate && pnpm prisma:migrate:deploy && pnpm build
     startCommand: pnpm start
     envVars:
       - key: DATABASE_URL
@@ -32,7 +32,7 @@ services:
   - type: worker
     name: giftygets-worker
     env: node
-    buildCommand: pnpm install && pnpm prisma:generate
+    buildCommand: corepack enable && corepack prepare pnpm@9.15.3 --activate && pnpm install && pnpm prisma:generate
     startCommand: pnpm worker
     envVars:
       - key: DATABASE_URL

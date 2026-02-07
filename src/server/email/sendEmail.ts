@@ -4,6 +4,7 @@ import { createUnsubscribeToken, isUnsubscribed } from '@/server/email/unsubscri
 export async function sendEmail(input: { to: string; subject: string; html: string; user: { id?: string; emailOptOut?: boolean } }) {
   if (isUnsubscribed(input.user)) return { ok: false, reason: 'User opted out' };
   if (process.env.NODE_ENV === 'test') return { ok: true, id: 'mock-email-id' };
+  if (!resend) return { ok: false, reason: 'RESEND_NOT_CONFIGURED' };
 
   const html = input.user.id
     ? `${input.html}<p style="font-size:12px">Unsubscribe: ${process.env.APP_URL}/unsubscribe?token=${createUnsubscribeToken(input.user.id)}</p>`
